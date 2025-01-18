@@ -12,7 +12,8 @@ export const getUser = async (email) => {
 
         if (!querySnapshot.empty) {
             // Assuming email is unique, return the first matching document's data
-            return querySnapshot.docs[0].data();
+            const doc = querySnapshot.docs[0];
+            return { id: doc.id, ...doc.data() }; // Include the document ID
         } else {
             console.log("No user found with the provided email!");
             return null;

@@ -13,6 +13,8 @@ import {
 import CreateOrder from "./components/CreateOrder";
 import { getUser } from "./api/getUser";
 import ChooseFoodBank from "./components/ChooseFoodBank";
+import ChooseRestaurantName from "./components/ChooseRestaurantName";
+import { editUser } from "./api/editUser";
 
 function App() {
   const [user, setUser] = useState(null); // `null` for no user, user object for logged-in user
@@ -52,6 +54,11 @@ function App() {
     );
   }
 
+  const addRestaurantName = async (id, name) => {
+    const firebaseUser = await editUser(id, name);
+    setUser({ isLoggedIn: true, ...firebaseUser });
+  };
+
   return (
     <Router>
       <Routes>
@@ -61,9 +68,26 @@ function App() {
         )}
 
         {/* Protected Routes */}
-        {user && <Route path="/" element={<Home onLogout={logout} />} />}
-        {user && <Route path="/create-order" element={<CreateOrder />} />}
-        {user && <Route path="/choose-food-bank" element={<ChooseFoodBank />} />}
+        {user && user.restaurantName && (
+          <Route path="/" element={<Home onLogout={logout} />} />
+        )}
+        {user && user.restaurantName && (
+          <Route path="/create-order" element={<CreateOrder />} />
+        )}
+        {!user && (
+          <Route path="/track/:orderId" element={<AuthForm setUser={setUser} />} />
+        )}
+        {user && (
+          <Route
+            path="/choose-restaurant-name"
+            element={
+              <ChooseRestaurantName user={user} onSubmit={addRestaurantName} />
+            }
+          />
+        )}
+        {user && user.restaurantName && (
+          <Route path="/choose-food-bank" element={<ChooseFoodBank />} />
+        )}
 
         {/* Redirects */}
         {!user && <Route path="*" element={<Navigate to="/auth" />} />}

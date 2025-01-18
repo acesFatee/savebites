@@ -1,9 +1,20 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function CreateOrder() {
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault(); // Prevent default form submission behavior
+    navigate("/choose-food-bank"); // Navigate to /choose-food-bank
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <form className="w-full max-w-lg bg-white shadow-md rounded-lg p-8">
+      <form
+        onSubmit={handleSubmit} // Attach custom submit handler
+        className="w-full max-w-lg bg-white shadow-md rounded-lg p-8"
+      >
         <h2 className="text-2xl font-bold mb-6 text-gray-700 text-center">
           Create Order
         </h2>
@@ -31,19 +42,6 @@ export default function CreateOrder() {
             id="quantity"
             name="quantity"
             placeholder="Enter quantity"
-            className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
-        
-        {/* Pickup Time */}
-        <div className="mb-4">
-          <label htmlFor="pickupTime" className="block text-sm font-medium text-gray-700 mb-2">
-            Pickup Time
-          </label>
-          <input
-            type="time"
-            id="pickupTime"
-            name="pickupTime"
             className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
