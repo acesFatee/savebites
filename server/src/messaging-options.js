@@ -1,7 +1,9 @@
+require('dotenv').config();
+
 const options =  {
-    host: 'wss://mr-connection-jvzbduz0dem.messaging.solace.cloud:8443',
-    username: 'solace-cloud-client',
-    password: 'nht03hj922fgq9a02t15o3585l',
+    host: process.env.SOLACE_HOST,
+    username: process.env.SOLACE_USERNAME,
+    password: process.env.SOLACE_PASSWORD,
     clientId: 'myUniqueClientId',
     keepalive: 10,
     protocolId: 'MQTT',

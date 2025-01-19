@@ -60,6 +60,8 @@ function App() {
     setUser({ isLoggedIn: true, ...firebaseUser });
   };
 
+  console.log(user)
+
   return (
       <Router>
         <Routes>

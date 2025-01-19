@@ -1,9 +1,9 @@
 
 const options = {
-  userName: process.env.SOLACE_USERNAME || "solace-cloud-client",
-  password: process.env.SOLACE_PASSWORD || 'nht03hj922fgq9a02t15o3585l',
+  userName: process.env.REACT_APP_SOLACE_USERNAME,
+  password: process.env.REACT_APP_SOLACE_PASSWORD,
   invocationContext: {
-    host: process.env.SOLACE_HOST || "mr-connection-jvzbduz0dem.messaging.solace.cloud",
+    host: process.env.REACT_APP_SOLACE_HOST ,
     port: 8443,
     clientId: "",
   },

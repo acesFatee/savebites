@@ -22,7 +22,6 @@ const ChooseRestaurantName = ({ user, onSubmit }) => {
   };
 
   useEffect(() => {
-    console.log({user})
     if (user.restaurantName) {
       navigate("/create-order");
     }

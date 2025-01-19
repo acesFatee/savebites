@@ -28,8 +28,8 @@ const useMessaging = (user) => {
     mqttClient.onMessageArrived = (message) => {
       console.log("Message received:", message.payloadString);
       setMessages((prevMessages) => [
-        ...prevMessages,
         { topic: message.destinationName, payload: message.payloadString },
+        ...prevMessages,
       ]);
     };
 

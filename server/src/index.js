@@ -3,12 +3,16 @@ const http = require("http");
 const bodyParser = require("body-parser");
 const app = require("./App");
 const getMockCoordinates = require('./generateMockData')
+const cors = require('cors')
 
 const port = 9001;
 
 function initializeExpress() {
   const expressApp = express();
 
+  expressApp.use(cors({
+    origin: "*"
+  }))
   expressApp.use(express.static("public"));
 
   // add & configure middleware
@@ -25,9 +29,9 @@ function initializeExpress() {
     res.status(200).send('{"result":"ok"}');
   });
 
-  // Publish example
-  expressApp.post("/publish/:id", (req, res) => {
-    const { startLat, startLon, endLat, endLon, steps } = req.body;
+  
+  expressApp.post("/publish/:id", async (req, res) => {
+    const { startLat, startLon, endLat, endLon } = req.body;
   
     // Validate the required fields
     if (
@@ -39,13 +43,10 @@ function initializeExpress() {
       return res.status(400).send('{"error":"Missing required fields"}');
     }
   
-    const start = { latitude: startLat, longitude: startLon };
-    const end = { latitude: endLat, longitude: endLon };
-  
-    // Get the mock coordinates
-    const mockCoordinates = getMockCoordinates(start, end, 50);
-  
     const topic = `orders/track/${req.params.id}`;
+  
+    // Generate the mock coordinates
+    const mockCoordinates = await getMockCoordinates(startLat, startLon, endLat, endLon);
   
     // Publish coordinates at regular intervals
     let step = 0;
@@ -56,15 +57,19 @@ function initializeExpress() {
         return;
       }
   
-      const message = JSON.stringify(mockCoordinates[step]);
+      const [lon, lat] = mockCoordinates[step]; // Extract longitude and latitude
+      const message = JSON.stringify({ lon, lat });
+  
+      // Publish the message to the MQTT topic
       app.publishMessage(topic, message);
       console.log(`Published to ${topic}:`, message);
   
       step++;
-    }, 1000); // Send a message every 1 second
+    }, 500); // Send a message every 1 second
   
     res.status(200).send('{"result":"ok"}');
   });
+  
   
 
   var server = http.createServer(expressApp);

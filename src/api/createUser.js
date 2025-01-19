@@ -6,8 +6,10 @@ export const createUser = async (user) => {
     // Reference a collection named 'users' (you can replace 'users' with your desired collection name)
     const docRef = await addDoc(collection(db, "users"), user);
 
-    console.log("Document written with ID: ", docRef.id);
+    // Return the user object along with the newly created document ID
+    return { id: docRef.id, ...user };
   } catch (error) {
     console.error("Error adding document: ", error);
+    throw error; // Re-throw the error so it can be handled by the caller
   }
 };

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getFoodBanks } from "../api/getFoodBanks";
 import { useLocation } from "react-router-dom";
 import { createOrder } from "../api/createOrder";
+import { startTracking } from "../api/startTracking";
 
 const ChooseFoodBank = ({ onSelect }) => {
   const [selectedFoodBank, setSelectedFoodBank] = useState(null);
@@ -49,9 +50,8 @@ const ChooseFoodBank = ({ onSelect }) => {
     };
 
     const orderId = await createOrder(orderData)
-    console.log({orderId})
     const url = `/track/${orderId}`
-    console.log({url})
+    await startTracking(orderId)
     navigate(url)
   };
 
