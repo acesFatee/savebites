@@ -36,10 +36,8 @@ const ChooseFoodBank = ({ onSelect }) => {
     const foodType = queryParams.get("foodType");
     const instructions = queryParams.get("instructions");
 
-    // Simulate retrieving the food bank ID (e.g., from a state or a list of food banks)
-    const foodBankId = selectedFoodBank.id; // Replace with actual logic to get the food bank ID
+    const foodBankId = selectedFoodBank.id;
 
-    // Combine all data for the order
     const orderData = {
       foodDescription,
       quantity,
@@ -49,9 +47,9 @@ const ChooseFoodBank = ({ onSelect }) => {
       createdAt: new Date().toISOString(),
     };
 
-    const orderId = await createOrder(orderData)
-    const url = `/track/${orderId}`
-    await startTracking(orderId)
+    const order = await createOrder(orderData)
+    const url = `/track/${order.id}`
+    await startTracking(order.id, order.foodBank.lat, order.foodBank.lon, 45.42279012312327, -75.68364447683525)
     navigate(url)
   };
 

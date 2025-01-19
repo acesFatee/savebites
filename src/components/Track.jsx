@@ -1,73 +1,62 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useEffect, useState, useCallback } from "react";
+import { useParams } from "react-router-dom";
 import useMessaging from "../hooks/useMessaging";
 import SaveBiteMap from "./SaveBiteMap";
 
 const Track = ({ user }) => {
-  const { connect, subscribe, sendMessage, messages, connection } =
-    useMessaging(user);
+  const { connect, subscribe, messages, connection } = useMessaging(user);
   const { orderId } = useParams();
-  // const navigate = useNavigate()
 
   const [location, setLocation] = useState(null);
-  const [userLocation, setUserLocation] = useState(null);
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [userLocation] = useState({
+    lat: 45.42279012312327,
+    lon: -75.68364447683525,
+  });
 
-  
-
-  useEffect(() => {
-    if (!messages[0]) {
-      // mark order as complete
-      // show order has been 
-      return;
+  // Memoized function to subscribe to the topic
+  const subscribeToTopic = useCallback(async () => {
+    try {
+      await connect();
+      subscribe(`orders/track/${orderId}`);
+    } catch (err) {
+      console.error("Failed to connect or subscribe:", err);
     }
-    const updatedLocation = JSON.parse(messages[0].payload);
-    setLocation(updatedLocation);
-  }, [messages]);
-
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setUserLocation({ lat: latitude, lon: longitude });
-          setLocation({ lat: 45.419518, lon: -75.630251 });
-        },
-        (err) => {
-          console.error("Error getting location:", err);
-          setError(err.message);
-        }
-      );
-    } else {
-      setError("Geolocation is not supported by this browser.");
-    }
-  }, []); // Empty dependency array ensures this runs on page load
-
-  useEffect(() => {
-    connect()
-      .then(() => {
-        subscribe(`orders/track/${orderId}`);
-      })
-      .catch((err) => console.error("Failed to connect or subscribe:", err));
   }, [connect, subscribe, orderId]);
 
-  // const publish = () => {
-  //   sendMessage(`orders/track/${orderId}`, {
-  //     latitude: 45.4215,
-  //     longitude: -75.6972,
-  //   });
-  // };
+  useEffect(() => {
+    subscribeToTopic();
+  }, [subscribeToTopic]);
+
+  useEffect(() => {
+    if (messages.length === 0) {
+      setLocation(null);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const updatedLocation = JSON.parse(messages[0].payload);
+      setLocation(updatedLocation);
+    } catch (error) {
+      console.error("Error parsing location message:", error);
+      setLocation(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [messages]);
 
   return (
     <div className="p-6 container mx-auto">
       <h1 className="text-2xl font-bold mb-4">Real-Time Tracking</h1>
       <p>Status: {connection.isConnected ? "Connected" : "Disconnected"}</p>
 
-      {/* <button className="underline" onClick={publish}>
-        Send Test Message
-      </button> */}
-      {location && (
+      {loading ? (
+        <p>Loading...</p>
+      ) : location ? (
         <SaveBiteMap location={location} userLocation={userLocation} />
+      ) : (
+        <p>Order has been picked up by the rider</p>
       )}
     </div>
   );
