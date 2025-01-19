@@ -23,6 +23,10 @@ function initializeExpress() {
   );
   expressApp.use(bodyParser.json());
 
+  expressApp.get('/', (req, res) => {
+    return res.status(200).json({success: "ok"})
+  })
+
   // Subscription example
   expressApp.post("/subscribe", (req, res) => {
     app.subscribeToTopic("SomeTopic");
