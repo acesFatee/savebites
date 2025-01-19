@@ -1,15 +1,15 @@
-import React, { useState } from "react";
-
-const foodBanks = [
-  { id: 1, name: "Ottawa Food Bank", address: "1317 Michael St, Ottawa, ON K1B 3M9" },
-  { id: 2, name: "Parkdale Food Centre", address: "30 Rosemount Ave, Ottawa, ON K1Y 1P4" },
-  { id: 3, name: "Debra Dynes Family House", address: "955 Debra Ave, Ottawa, ON K2C 0J5" },
-  { id: 4, name: "Heron Emergency Food Centre", address: "1480 Heron Rd, Ottawa, ON K1V 6A5" },
-  { id: 5, name: "St. Joe's Supper Table", address: "151 Laurier Ave E, Ottawa, ON K1N 6N8" },
-];
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getFoodBanks } from "../api/getFoodBanks";
+import { useLocation } from "react-router-dom";
+import { createOrder } from "../api/createOrder";
 
 const ChooseFoodBank = ({ onSelect }) => {
   const [selectedFoodBank, setSelectedFoodBank] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [foodBanks, setFoodBanks] = useState([]);
 
   const handleSelection = (foodBank) => {
     setSelectedFoodBank(foodBank);
@@ -18,16 +18,57 @@ const ChooseFoodBank = ({ onSelect }) => {
     }
   };
 
+  const fetchFoodBanks = async () => {
+    const result = await getFoodBanks();
+    setFoodBanks(result);
+  };
+
+  useEffect(() => {
+    fetchFoodBanks();
+  }, []);
+
+  const sendOrderForTracking = async () => {
+    // Retrieve query parameters
+    const queryParams = new URLSearchParams(location.search);
+    const foodDescription = queryParams.get("foodDescription");
+    const quantity = queryParams.get("quantity");
+    const foodType = queryParams.get("foodType");
+    const instructions = queryParams.get("instructions");
+
+    // Simulate retrieving the food bank ID (e.g., from a state or a list of food banks)
+    const foodBankId = selectedFoodBank.id; // Replace with actual logic to get the food bank ID
+
+    // Combine all data for the order
+    const orderData = {
+      foodDescription,
+      quantity,
+      foodType,
+      instructions,
+      foodBankId,
+      createdAt: new Date().toISOString(),
+    };
+
+    const orderId = await createOrder(orderData)
+    console.log({orderId})
+    const url = `/track/${orderId}`
+    console.log({url})
+    navigate(url)
+  };
+
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
       <div className="w-full max-w-md bg-white shadow-md rounded-lg p-6">
-        <h2 className="text-2xl font-bold text-center mb-6">Choose a Food Bank</h2>
+        <h2 className="text-2xl font-bold text-center mb-6">
+          Choose a Food Bank
+        </h2>
         <ul className="space-y-4">
           {foodBanks.map((foodBank) => (
             <li
               key={foodBank.id}
               className={`p-4 border rounded-md cursor-pointer hover:bg-gray-50 transition ${
-                selectedFoodBank?.id === foodBank.id ? "bg-blue-100 border-blue-500" : ""
+                selectedFoodBank?.id === foodBank.id
+                  ? "bg-blue-100 border-blue-500"
+                  : ""
               }`}
               onClick={() => handleSelection(foodBank)}
             >
@@ -39,7 +80,7 @@ const ChooseFoodBank = ({ onSelect }) => {
 
         <button
           className="mt-6 w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
-          onClick={() => alert(`You selected: ${selectedFoodBank?.name}`)}
+          onClick={sendOrderForTracking}
           disabled={!selectedFoodBank}
         >
           Confirm Selection

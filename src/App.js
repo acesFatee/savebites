@@ -15,6 +15,7 @@ import { getUser } from "./api/getUser";
 import ChooseFoodBank from "./components/ChooseFoodBank";
 import ChooseRestaurantName from "./components/ChooseRestaurantName";
 import { editUser } from "./api/editUser";
+import Track from "./components/Track";
 
 function App() {
   const [user, setUser] = useState(null); // `null` for no user, user object for logged-in user
@@ -60,43 +61,47 @@ function App() {
   };
 
   return (
-    <Router>
-      <Routes>
-        {/* Auth Route */}
-        {!user && (
-          <Route path="/auth" element={<AuthForm setUser={setUser} />} />
-        )}
+      <Router>
+        <Routes>
+          {/* Auth Route */}
+          {!user && (
+            <Route path="/auth" element={<AuthForm setUser={setUser} />} />
+          )}
 
-        {/* Protected Routes */}
-        {user && user.restaurantName && (
-          <Route path="/" element={<Home onLogout={logout} />} />
-        )}
-        {user && user.restaurantName && (
-          <Route path="/create-order" element={<CreateOrder />} />
-        )}
-        {!user && (
-          <Route path="/track/:orderId" element={<AuthForm setUser={setUser} />} />
-        )}
-        {user && (
-          <Route
-            path="/choose-restaurant-name"
-            element={
-              <ChooseRestaurantName user={user} onSubmit={addRestaurantName} />
-            }
-          />
-        )}
-        {user && user.restaurantName && (
-          <Route path="/choose-food-bank" element={<ChooseFoodBank />} />
-        )}
+          {/* Protected Routes */}
+          {user && user.restaurantName && (
+            <Route path="/" element={<Home onLogout={logout} />} />
+          )}
+          {user && user.restaurantName && (
+            <Route path="/create-order" element={<CreateOrder />} />
+          )}
+          {user && <Route path="/track/:orderId" element={<Track user={user}/>} />}
+          {user && (
+            <Route
+              path="/choose-restaurant-name"
+              element={
+                <ChooseRestaurantName
+                  user={user}
+                  onSubmit={addRestaurantName}
+                />
+              }
+            />
+          )}
+          {user && user.restaurantName && (
+            <Route path="/choose-food-bank" element={<ChooseFoodBank />} />
+          )}
 
-        {/* Redirects */}
-        {!user && <Route path="*" element={<Navigate to="/auth" />} />}
-        {!user?.restaurantName && (
-          <Route path="*" element={<Navigate to="/choose-restaurant-name" />} />
-        )}
-        {user && <Route path="*" element={<Navigate to="/" />} />}
-      </Routes>
-    </Router>
+          {/* Redirects */}
+          {!user && <Route path="*" element={<Navigate to="/auth" />} />}
+          {!user?.restaurantName && (
+            <Route
+              path="*"
+              element={<Navigate to="/choose-restaurant-name" />}
+            />
+          )}
+          {user && <Route path="*" element={<Navigate to="/" />} />}
+        </Routes>
+      </Router>
   );
 }
 
